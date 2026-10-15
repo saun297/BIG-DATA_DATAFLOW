@@ -5,12 +5,10 @@ import re
 import emoji
 from flashtext import KeywordProcessor
 
-import torch
-import torch.nn.functional as F
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
-
 import apache_beam as beam
-from apache_beam.options.pipeline_options import PipelineOptions, GoogleCloudOptions, StandardOptions, SetupOptions
+from apache_beam.options.pipeline_options import (
+    PipelineOptions, GoogleCloudOptions, StandardOptions, SetupOptions, WorkerOptions
+)
 from apache_beam.transforms.window import FixedWindows
 
 logging.basicConfig(level=logging.INFO)
@@ -393,13 +391,14 @@ class ExpandPersonRowsFn(beam.DoFn):
 class ExtractPersonNERFn(beam.DoFn):
     """Sử dụng mô hình Electra NLP để nhận diện thực thể tên người (NER)[cite: 2]."""
     def setup(self):
-        self.device = 0 if torch.cuda.is_available() else -1
-        self.ner_pipeline = pipeline(
-            "ner",
-            model="NlpHUST/ner-vietnamese-electra-base",
-            aggregation_strategy="simple",
-            device=self.device
-        )
+    import torch
+    from transformers import pipeline
+    self.ner_pipeline = pipeline(
+        "ner",
+        model="NlpHUST/ner-vietnamese-electra-base",
+        aggregation_strategy="simple",
+        device=0 if torch.cuda.is_available() else -1,
+    )
 
     def process(self, record):
         text = record.get('cleaned_text', '')
@@ -421,6 +420,9 @@ class ExtractPersonNERFn(beam.DoFn):
 class SentimentAnalysisFn(beam.DoFn):
     """Sử dụng mô hình PhoBERT để phân tích cảm xúc văn bản[cite: 2]."""
     def setup(self):
+        import torch
+        from transformers import AutoTokenizer, AutoModelForSequenceClassification
+        self.torch = torch
         model_name = "wonrax/phobert-base-vietnamese-sentiment"
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -432,9 +434,9 @@ class SentimentAnalysisFn(beam.DoFn):
         if text:
             try:
                 inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=256).to(self.device)
-                with torch.no_grad():
+                with self.torch.no_grad(): 
                     outputs = self.model(**inputs)
-                probs = F.softmax(outputs.logits, dim=1).squeeze().tolist()
+                probs = self.torch.softmax(outputs.logits, dim=1).squeeze().tolist()
                 record['sentiment_neg_prob'] = round(probs[0], 4)
                 record['sentiment_pos_prob'] = round(probs[1], 4)
                 record['sentiment_neu_prob'] = round(probs[2], 4)
@@ -471,23 +473,22 @@ class SentimentAnalysisFn(beam.DoFn):
 # ==========================================
 def run():
     options = PipelineOptions()
-    
-    # 1. Cấu hình Google Cloud Options
-    google_cloud_options = options.view_as(GoogleCloudOptions)
-    google_cloud_options.project = PROJECT_ID
-    google_cloud_options.region = REGION
-    google_cloud_options.temp_location = TEMP_LOCATION
-    options.view_as(SetupOptions).sdk_location = "container"
-    
-    # 2. Cấu hình Standard Options (runner và streaming nằm ở đây)
-    standard_options = options.view_as(StandardOptions)
-    standard_options.runner = "DataflowRunner"  # Chuyển runner sang đây
-    standard_options.streaming = True
-    
-    # 3. Cấu hình Setup Options
+
+    gco = options.view_as(GoogleCloudOptions)
+    gco.project = PROJECT_ID
+    gco.region = REGION
+    gco.temp_location = TEMP_LOCATION
+
+    options.view_as(StandardOptions).runner = "DataflowRunner"
+    options.view_as(StandardOptions).streaming = True
+
     setup_options = options.view_as(SetupOptions)
-    setup_options.requirements_file = "requirements.txt"
     setup_options.save_main_session = True
+
+    worker = options.view_as(WorkerOptions)
+    worker.sdk_container_image = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/REPO/nlp-beam:v1"
+    worker.machine_type = "n2-standard-4"
+    worker.number_of_worker_harness_threads = 2
 
     with beam.Pipeline(options=options) as p:
         # BƯỚC 2: Nhận tín hiệu file từ Pub/Sub
