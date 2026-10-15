@@ -129,20 +129,23 @@ def extract_program_name(video_title, channel_title=None, existing_program=None)
         if "nhanh như chớp" in title: return "Nhanh Như Chớp"
         if "kỳ tài thách đấu" in title: return "Kỳ Tài Thách Đấu"
         if "BTS ATVCDN" in title: return "Anh Trai Và Cái Đuôi Nhỏ"
+        if "Anh Trai Và Cái Đuôi Nhỏ" in title: return "Anh Trai Và Cái Đuôi Nhỏ"
 
     elif "forest" in channel:
         if any(kw in title for kw in ["xuân hạ thu đông", "xhtdrlx", "xhtđrlx"]): return "Xuân Hạ Thu Đông Rồi Lại Xuân"
-        if any(kw in title for kw in ["running man", "chơi là chạy"]): return "Running Man Vietnam"
+        if any(kw in title for kw in ["running man", "RUN MOMENT", "BTS", "chơi là chạy"]): return "Running Man Vietnam"
         if "mùi vị những chuyến đi" in title: return "Mùi Vị Những Chuyến Đi"
         if "eye contact live" in title: return "Eye Contact Live"
 
     elif "vie" in channel:
-        if any(kw in title for kw in ["say hi", "anh trai", "say real", "anh trai say hi", "tinh hà"]):
+        if any(kw in title for kw in ["say hi", "anh trai", "say real", "anh trai say hi"]):
             return "Anh Trai Say Hi"
         if any(kw in title for kw in ["rap việt", "rap viet"]): return "Rap Việt"
-        if any(kw in title for kw in ["the masked singer", "ca sĩ mặt nạ"]): return "Ca Sĩ Mặt Nạ"
+        if any(kw in title for kw in ["The Masked Singer", "ca sĩ mặt nạ"]): return "Ca Sĩ Mặt Nạ"
         if any(kw in title for kw in ["người ấy là ai", "nala"]): return "Người Ấy Là Ai"
         if "siêu trí tuệ" in title: return "Siêu Trí Tuệ Việt Nam"
+        if any(kw in title for kw in ["THSH", "Tinh Hà Say Hi", "TINH HÀ SAY HI", "UNCUT"]):
+          return "Tinh Hà Say Hi"
 
     elif "yeah1" in channel:
         if any(kw in title for kw in ["anh trai vượt ngàn chông gai", "atvncg", "chông gai"]):
@@ -150,6 +153,7 @@ def extract_program_name(video_title, channel_title=None, existing_program=None)
         if any(kw in title for kw in ["chị đẹp đạp gió", "chị đẹp rẽ sóng", "chị đẹp"]):
             return "Chị Đẹp Đạp Gió Rẽ Sóng"
         if "gia đình haha" in title: return "Gia Đình Haha"
+        if "Qua Nhà Bật Nhạc" in title: return "Qua Nhà Bật Nhạc"
 
     if any(kw in title for kw in ["2n1d", "2 ngày 1 đêm"]): return "2 Ngày 1 Đêm"
     if any(kw in title for kw in ["say hi", "say real", "tinh hà", "anh trai say hi"]): return "Anh Trai Say Hi"
