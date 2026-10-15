@@ -389,7 +389,6 @@ class ExpandPersonRowsFn(beam.DoFn):
 # BƯỚC 5: HÀM XỬ LÝ NGÔN NGỮ LỚN (AI / NLP MODELS)
 # ==========================================
 class ExtractPersonNERFn(beam.DoFn):
-    """Sử dụng mô hình Electra NLP để nhận diện thực thể tên người (NER)[cite: 2]."""
     def setup(self):
         import torch
         from transformers import pipeline
