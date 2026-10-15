@@ -1,6 +1,7 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
 apache-beam[gcp]>=2.59.0
 transformers>=4.38.2
-torch>=2.2.1
 flashtext>=2.7
 emoji>=2.11.0
 google-cloud-storage>=2.18.2
