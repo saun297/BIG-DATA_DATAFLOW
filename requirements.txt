@@ -1,5 +1,4 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-torch
+https://download.pytorch.org/whl/cpu/torch-2.2.1%2Bcpu-cp312-cp312-linux_x86_64.whl
 apache-beam[gcp]>=2.59.0
 transformers>=4.38.2
 flashtext>=2.7
