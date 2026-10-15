@@ -1,1 +1,7 @@
-echo "venv/" > .gcloudignore
+cat > .gcloudignore << 'EOF'
+venv/
+.git/
+__pycache__/
+*.pyc
+main.py
+EOF
