@@ -477,6 +477,7 @@ def run():
     google_cloud_options.project = PROJECT_ID
     google_cloud_options.region = REGION
     google_cloud_options.temp_location = TEMP_LOCATION
+    options.view_as(SetupOptions).sdk_location = "container"
     
     # 2. Cấu hình Standard Options (runner và streaming nằm ở đây)
     standard_options = options.view_as(StandardOptions)
