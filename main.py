@@ -487,7 +487,7 @@ def run():
     worker = options.view_as(WorkerOptions)
     worker.sdk_container_image = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/REPO/nlp-beam:v1"
     worker.machine_type = "n2-standard-4"
-    worker.number_of_worker_harness_threads = 2
+    #worker.number_of_worker_harness_threads = 2
 
     with beam.Pipeline(options=options) as p:
         # BƯỚC 2: Nhận tín hiệu file từ Pub/Sub
