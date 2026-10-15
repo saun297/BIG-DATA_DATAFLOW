@@ -1,4 +1,4 @@
-FROM apache/beam_python3.11_sdk:2.59.0
+FROM apache/beam_python3.12_sdk:2.59.0
 
 ENV HF_HOME=/opt/hf_cache \
     PIP_NO_CACHE_DIR=1
