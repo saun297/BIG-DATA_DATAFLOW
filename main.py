@@ -10,7 +10,7 @@ import torch.nn.functional as F
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 
 import apache_beam as beam
-from apache_beam.options.pipeline_options import PipelineOptions, GoogleCloudOptions, StandardOptions
+from apache_beam.options.pipeline_options import PipelineOptions, GoogleCloudOptions, StandardOptions, SetupOptions
 from apache_beam.transforms.window import FixedWindows
 
 logging.basicConfig(level=logging.INFO)
@@ -472,13 +472,21 @@ class SentimentAnalysisFn(beam.DoFn):
 def run():
     options = PipelineOptions()
     
+    # 1. Cấu hình Google Cloud Options
     google_cloud_options = options.view_as(GoogleCloudOptions)
     google_cloud_options.project = PROJECT_ID
     google_cloud_options.region = REGION
     google_cloud_options.temp_location = TEMP_LOCATION
-    google_cloud_options.runner = "DataflowRunner"  
-    options.view_as(SetupOptions).requirements_file = "requirements.txt" 
-    options.view_as(StandardOptions).streaming = True
+    
+    # 2. Cấu hình Standard Options (runner và streaming nằm ở đây)
+    standard_options = options.view_as(StandardOptions)
+    standard_options.runner = "DataflowRunner"  # Chuyển runner sang đây
+    standard_options.streaming = True
+    
+    # 3. Cấu hình Setup Options
+    setup_options = options.view_as(SetupOptions)
+    setup_options.requirements_file = "requirements.txt"
+    setup_options.save_main_session = True
 
     with beam.Pipeline(options=options) as p:
         # BƯỚC 2: Nhận tín hiệu file từ Pub/Sub
