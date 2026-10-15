@@ -391,13 +391,13 @@ class ExpandPersonRowsFn(beam.DoFn):
 class ExtractPersonNERFn(beam.DoFn):
     """Sử dụng mô hình Electra NLP để nhận diện thực thể tên người (NER)[cite: 2]."""
     def setup(self):
-    import torch
-    from transformers import pipeline
-    self.ner_pipeline = pipeline(
-        "ner",
-        model="NlpHUST/ner-vietnamese-electra-base",
-        aggregation_strategy="simple",
-        device=0 if torch.cuda.is_available() else -1,
+        import torch
+        from transformers import pipeline
+        self.ner_pipeline = pipeline(
+            "ner",
+            model="NlpHUST/ner-vietnamese-electra-base",
+            aggregation_strategy="simple",
+            device=0 if torch.cuda.is_available() else -1,
     )
 
     def process(self, record):
